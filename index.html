@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minecraft Server – AGB</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap');
+
+  :root {
+    --grass: #5D9C3A;
+    --dirt: #8B5E3C;
+    --stone: #7F7F7F;
+    --sky: #87CEEB;
+    --dark: #1a1a1a;
+    --gold: #FFD700;
+    --diamond: #5CF9FF;
+    --red: #FF3C3C;
+    --green: #39FF14;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'VT323', monospace;
+    background-color: #0d0d0d;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Pixel grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Floating particles */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--grass);
+    image-rendering: pixelated;
+    animation: floatUp linear infinite;
+    opacity: 0.6;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  /* Grass top border */
+  .grass-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--grass) 0px, var(--grass) 32px,
+      #4a8c2a 32px, #4a8c2a 64px
+    );
+    z-index: 10;
+    box-shadow: 0 4px 0 var(--dirt);
+  }
+
+  .grass-bar-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--dirt) 0px, var(--dirt) 32px,
+      #7a5230 32px, #7a5230 64px
+    );
+    z-index: 10;
+  }
+
+  /* Main card */
+  .card {
+    background: rgba(20, 20, 20, 0.92);
+    border: 4px solid var(--grass);
+    box-shadow:
+      0 0 0 4px #000,
+      0 0 40px rgba(93, 156, 58, 0.3),
+      inset 0 0 60px rgba(0,0,0,0.5);
+    max-width: 680px;
+    width: 100%;
+    padding: 48px 40px;
+    position: relative;
+    image-rendering: pixelated;
+    animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Corner decorations */
+  .card::before, .card::after {
+    content: '⬛';
+    position: absolute;
+    font-size: 20px;
+    color: var(--grass);
+    line-height: 1;
+  }
+  .card::before { top: -2px; left: -2px; }
+  .card::after  { bottom: -2px; right: -2px; }
+
+  .server-icon {
+    display: block;
+    font-size: 72px;
+    text-align: center;
+    margin-bottom: 8px;
+    animation: bounce 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(93,156,58,0.6));
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .server-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 4px;
+    text-shadow:
+      3px 3px 0 #a07000,
+      0 0 20px rgba(255, 215, 0, 0.4);
+    letter-spacing: 2px;
+    animation: flicker 4s ease-in-out infinite;
+  }
+
+  @keyframes flicker {
+    0%,95%,100% { opacity: 1; }
+    96% { opacity: 0.8; }
+    97% { opacity: 1; }
+    98% { opacity: 0.7; }
+  }
+
+  .subtitle {
+    font-size: 22px;
+    color: var(--diamond);
+    text-align: center;
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+  }
+
+  .divider {
+    height: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--grass) 0, var(--grass) 16px,
+      var(--dirt)  16px, var(--dirt)  32px
+    );
+    margin: 24px 0;
+    opacity: 0.6;
+  }
+
+  .agb-header {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+  }
+
+  .agb-box {
+    background: rgba(0,0,0,0.5);
+    border: 3px solid #333;
+    border-left: 3px solid var(--grass);
+    padding: 20px;
+    font-size: 20px;
+    line-height: 1.8;
+    color: #ccc;
+    margin-bottom: 28px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .agb-box::-webkit-scrollbar { width: 8px; }
+  .agb-box::-webkit-scrollbar-track { background: #111; }
+  .agb-box::-webkit-scrollbar-thumb { background: var(--grass); }
+
+  .agb-box p { margin-bottom: 10px; }
+  .agb-box strong { color: var(--gold); }
+
+  .question {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.8;
+    text-shadow: 2px 2px 0 #000;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    padding: 16px 32px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.1s, filter 0.1s;
+    image-rendering: pixelated;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    min-width: 180px;
+  }
+
+  .btn:active { transform: translateY(3px); }
+
+  .btn-accept {
+    background: var(--green);
+    color: #000;
+    box-shadow:
+      0 6px 0 #1a8a00,
+      inset 0 1px 0 rgba(255,255,255,0.3);
+    text-shadow: none;
+  }
+  .btn-accept:hover {
+    background: #55ff28;
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 #1a8a00, 0 0 20px rgba(57,255,20,0.4);
+  }
+
+  .btn-deny {
+    background: var(--red);
+    color: #fff;
+    box-shadow:
+      0 6px 0 #8a0000,
+      inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .btn-deny:hover {
+    background: #ff5555;
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 #8a0000, 0 0 20px rgba(255,60,60,0.4);
+  }
+
+  /* Result screens */
+  .result {
+    display: none;
+    text-align: center;
+    animation: resultIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes resultIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .result-icon {
+    font-size: 80px;
+    display: block;
+    margin-bottom: 16px;
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  .result-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    margin-bottom: 20px;
+    line-height: 1.8;
+  }
+
+  .result-accept .result-title { color: var(--green); text-shadow: 2px 2px 0 #1a8a00; }
+  .result-deny .result-title { color: var(--red); text-shadow: 2px 2px 0 #8a0000; }
+
+  .result-msg {
+    font-size: 22px;
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .result-accept .result-msg { color: #ccc; }
+  .result-deny .result-msg { color: #999; }
+
+  .discord-hint {
+    background: rgba(93,156,58,0.15);
+    border: 2px solid var(--green);
+    padding: 16px 20px;
+    font-size: 18px;
+    color: var(--diamond);
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+
+  .btn-back {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 10px 20px;
+    background: #333;
+    color: #aaa;
+    border: 2px solid #555;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .btn-back:hover { background: #444; color: #fff; }
+
+  #main-screen { display: block; }
+</style>
+</head>
+<body>
+
+<style>
+  .secret {
+    position: fixed;
+    bottom: 22px;
+    right: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,0.08);
+    z-index: 5;
+    letter-spacing: 0.5px;
+    user-select: none;
+    pointer-events: none;
+    line-height: 1.4;
+    text-align: right;
+  }
+</style>
+
+<div class="grass-bar"></div>
+<div class="secret">§99 WildDucki darf alles<br>mit euch machen.</div>
+<div class="grass-bar-bottom"></div>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<div class="container">
+  <div class="card">
+
+    <!-- MAIN SCREEN -->
+    <div id="main-screen">
+      <span class="server-icon">⛏️</span>
+      <div class="server-name">WILDDUCKI'S</div>
+      <div class="subtitle">✦ Minecraft Server ✦</div>
+
+      <div class="divider"></div>
+
+      <div class="agb-header">📜 Allgemeine Geschäftsbedingungen</div>
+
+      <div class="agb-box">
+        <p><strong>§1 Nutzungsbedingungen</strong><br>
+        Um auf dem Server spielen zu dürfen, musst du folgende Regeln akzeptieren.</p>
+        <p><strong>§2 Verhalten</strong><br>
+        Kein Griefing, kein Cheaten, kein Spawn-Killing. Respektiere alle Spieler.</p>
+        <p><strong>§3 Chat-Regeln</strong><br>
+        Kein Spam, keine Beleidigungen, keine rassistischen oder diskriminierenden Aussagen.</p>
+        <p><strong>§4 Hacks & Cheats</strong><br>
+        Die Verwendung von Hacks, X-Ray, Mods oder Cheats führt zum permanenten Bann.</p>
+        <p><strong>§5 Beweis-Pflicht</strong><br>
+        Nach der Annahme schickst du einen Beweis an <strong>wildducki</strong>.</p>
+      </div>
+
+      <div class="question">
+        Willst du auf dem<br>Minecraft Server spielen?
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-accept" onclick="accept()">✔ Akzeptieren</button>
+        <button class="btn btn-deny" onclick="deny()">✘ Ablehnen</button>
+      </div>
+    </div>
+
+    <!-- ACCEPT SCREEN -->
+    <div id="accept-screen" class="result result-accept">
+      <span class="result-icon">🎉</span>
+      <div class="result-title">AGBs Akzeptiert!</div>
+      <div class="discord-hint">
+        📨 Schick jetzt einen <strong>Beweis</strong> an:<br><br>
+        <span style="color:var(--gold); font-family:'Press Start 2P',monospace; font-size:16px;">wildducki</span><br><br>
+        …und du kannst losspielen! 🎮
+      </div>
+      <div class="result-msg" style="font-size:18px; color:#888;">
+        Viel Spaß auf dem Server! ⛏️🏰
+      </div>
+      <button class="btn-back" onclick="goBack()">← Zurück</button>
+    </div>
+
+    <!-- DENY SCREEN -->
+    <div id="deny-screen" class="result result-deny">
+      <span class="result-icon">💀</span>
+      <div class="result-title">Abgelehnt.</div>
+      <div class="result-msg">
+        Verpiss dich. 👋
+      </div>
+      <div style="font-size: 16px; color: #555; margin-bottom: 20px;">
+        ( Du kannst es dir nochmal überlegen... )
+      </div>
+      <button class="btn-back" onclick="goBack()">← Zurück</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Generate particles
+  const container = document.getElementById('particles');
+  const colors = ['#5D9C3A', '#FFD700', '#5CF9FF', '#8B5E3C', '#7F7F7F'];
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = (-Math.random() * 20) + 's';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (4 + Math.random() * 8) + 'px';
+    p.style.height = p.style.width;
+    container.appendChild(p);
+  }
+
+  function showOnly(id) {
+    ['main-screen','accept-screen','deny-screen'].forEach(s => {
+      document.getElementById(s).style.display = 'none';
+    });
+    const el = document.getElementById(id);
+    el.style.display = 'block';
+    void el.offsetWidth; // reflow for animation
+    el.style.animation = 'none';
+    el.style.animation = '';
+  }
+
+  function accept() { showOnly('accept-screen'); }
+  function deny()   { showOnly('deny-screen'); }
+  function goBack() { showOnly('main-screen'); }
+</script>
+</body>
+</html>
